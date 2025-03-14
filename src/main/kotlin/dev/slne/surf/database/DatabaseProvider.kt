@@ -30,7 +30,7 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
     private val config get() = surfConfigApi.getSpongeConfig<DatabaseConfig>()
 
     fun connect() {
-        if (!connection.connector().isClosed) {
+        if (::connection.isInitialized && !connection.connector().isClosed) {
             disconnect()
         }
 
