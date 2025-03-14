@@ -4,13 +4,10 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.slne.surf.database.config.DatabaseConfig
 import dev.slne.surf.database.config.DatabaseHikariConfig
-import dev.slne.surf.database.serializer.DatabaseSerializer
 import dev.slne.surf.surfapi.core.api.config.createSpongeYmlConfig
 import dev.slne.surf.surfapi.core.api.config.getSpongeConfig
 import dev.slne.surf.surfapi.core.api.config.surfConfigApi
 import dev.slne.surf.surfapi.core.api.util.logger
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
 import org.jetbrains.exposed.sql.Database
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -23,25 +20,14 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
     private val log = logger()
     private lateinit var connection: Database
 
-    private val config: DatabaseConfig by lazy {
-        var spongeConfig: DatabaseConfig = surfConfigApi.getSpongeConfig()
-
-        if (spongeConfig == null) {
-            spongeConfig = surfConfigApi.createSpongeYmlConfig(
-                configDirectory,
-                "database-config.yml"
-            )
-        }
-
-        spongeConfig
+    init {
+        surfConfigApi.createSpongeYmlConfig<DatabaseConfig>(
+            configDirectory,
+            "database-config.yml"
+        )
     }
 
-    val json = Json {
-        ignoreUnknownKeys = true
-        serializersModule = SerializersModule {
-            DatabaseSerializer.register(this)
-        }
-    }
+    private val config get() = surfConfigApi.getSpongeConfig<DatabaseConfig>()
 
     fun connect() {
         if (!connection.connector().isClosed) {

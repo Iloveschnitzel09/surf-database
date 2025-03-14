@@ -3,7 +3,7 @@ package dev.slne.surf.database.config
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @ConfigSerializable
-class ExternalDatabaseConfig(
+data class ExternalDatabaseConfig(
     val connector: String = "mariadb",
     val driver: String = "org.mariadb.jdbc.Driver",
 
