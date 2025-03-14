@@ -7,5 +7,7 @@ class DatabaseConfig(
     val storageMethod: String = "local",
 
     val local: LocalDatabaseConfig? = null,
-    val external: ExternalDatabaseConfig? = null
+    val external: ExternalDatabaseConfig? = null,
+
+    val hikari: DatabaseHikariConfig = DatabaseHikariConfig()
 )

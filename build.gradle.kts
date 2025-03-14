@@ -12,12 +12,13 @@ tasks.shadowJar {
 }
 
 dependencies {
-    implementation(libs.bundles.exposed) {
+    api(libs.bundles.exposed) {
         exclude("org.jetbrains.kotlin", "kotlin-stdlib")
         exclude("org.jetbrains.kotlin", "kotlin-reflect")
         exclude("org.jetbrains.kotlinx", "kotlinx-coroutines-core")
         exclude("org.slf4j", "slf4j-api")
     }
+    api(libs.hikari)
 }
 
 kotlin {
