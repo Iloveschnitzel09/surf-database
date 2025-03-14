@@ -80,11 +80,6 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
             dbFile.createFile()
         }
 
-        connection = Database.connect(
-            "jdbc:sqlite:file:${dbFile.absolutePathString()}",
-            "org.sqlite.JDBC"
-        )
-
         connectUsingHikari(
             "sqlite",
             "org.sqlite.JDBC",
