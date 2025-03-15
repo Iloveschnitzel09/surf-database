@@ -19,6 +19,9 @@ dependencies {
         exclude("org.slf4j", "slf4j-api")
     }
     api(libs.hikari)
+
+    runtimeOnly(libs.sqlite)
+    runtimeOnly(libs.mariadb)
 }
 
 kotlin {
