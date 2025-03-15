@@ -19,6 +19,9 @@ dependencies {
         exclude("org.slf4j", "slf4j-api")
     }
     api(libs.hikari)
+
+    runtimeOnly("org.xerial:sqlite-jdbc:3.49.1.0")
+    runtimeOnly("org.mariadb.jdbc:mariadb-java-client:3.5.2")
 }
 
 kotlin {
