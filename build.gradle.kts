@@ -7,10 +7,6 @@ plugins {
 group = "dev.slne.surf"
 version = findProperty("version") as String
 
-tasks.shadowJar {
-    archiveFileName.set("surf-database.jar")
-}
-
 dependencies {
     api(libs.bundles.exposed) {
         exclude("org.jetbrains.kotlin", "kotlin-stdlib")
