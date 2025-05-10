@@ -1,7 +1,7 @@
-import dev.slne.surf.surfapi.gradle.util.slneSnapshots
+import dev.slne.surf.surfapi.gradle.util.slneReleases
 
 plugins {
-    id("dev.slne.surf.surfapi.gradle.core") version "1.21.4-1.0.121"
+    id("dev.slne.surf.surfapi.gradle.core") version "1.21.4+"
 }
 
 group = "dev.slne.surf"
@@ -26,6 +26,6 @@ kotlin {
 
 publishing {
     repositories {
-        slneSnapshots()
+        slneReleases()
     }
 }
