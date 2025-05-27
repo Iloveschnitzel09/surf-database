@@ -21,7 +21,10 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
     private lateinit var connection: Database
 
     init {
-        surfConfigApi.createSpongeYmlConfig<DatabaseConfig>(configDirectory, "database-config.yml")
+        surfConfigApi.createSpongeYmlConfig<DatabaseConfig>(
+            configDirectory,
+            "database-config.yml"
+        )
     }
 
     private val config get() = surfConfigApi.getSpongeConfig<DatabaseConfig>()
