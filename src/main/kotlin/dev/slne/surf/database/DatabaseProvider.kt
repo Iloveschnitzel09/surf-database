@@ -45,8 +45,8 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
 
             else -> {
                 log.atWarning().log(
-                "Unknown storage method '%s'. Using local storage...",
-                config.storageMethod
+                    "Unknown storage method '%s'. Using local storage...",
+                    config.storageMethod
                 )
                 connectLocal()
             }
