@@ -118,7 +118,7 @@ class RedisProviderTest {
         provider.commands?.getdel(key)
     }
 
-    class TestPubSubListener(val toComplete: CompletableDeferred<RedisExamplePacket>) {
+    private class TestPubSubListener(val toComplete: CompletableDeferred<RedisExamplePacket>) {
         @RedisEventHandler
         fun onMessage(event: RedisPacketEvent) {
             if (event.packet !is RedisExamplePacket) return
@@ -127,7 +127,7 @@ class RedisProviderTest {
         }
     }
 
-    class Test2PubSubListener(val toComplete: CompletableDeferred<RedisExamplePacket>) {
+    private class Test2PubSubListener(val toComplete: CompletableDeferred<RedisExamplePacket>) {
         @RedisEventHandler
         fun onMessage(event: RedisPacketEvent) {
             if (event.packet !is RedisExamplePacket) return

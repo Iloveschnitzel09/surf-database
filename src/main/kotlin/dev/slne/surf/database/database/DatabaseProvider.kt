@@ -12,11 +12,10 @@ import kotlin.io.path.createFile
 import kotlin.io.path.div
 import kotlin.io.path.notExists
 
-class DatabaseProvider(
+class DatabaseProvider internal constructor(
     private val connectionConfig: ConnectionConfig,
     private val storageDirectory: Path
 ) {
-
     private val log = logger()
 
     private var connection: Database? = null
@@ -31,24 +30,10 @@ class DatabaseProvider(
             }
         }
 
-        when (database.storageMethod.lowercase()) {
-            "local" -> {
-                connectLocal()
-            }
-
-            "external" -> {
-                connectExternal()
-            }
-
-            else -> {
-                log.atWarning()
-                    .log("Unknown storage method: '${database.storageMethod}'. Using local storage as fallback...")
-                connectLocal()
-            }
-        }
+        database.storageMethod.connect(this)
     }
 
-    private fun connectLocal() {
+    internal fun connectLocal() {
         val database = connectionConfig.database
         val local = database.local
         val fileName = local.fileName
@@ -75,7 +60,7 @@ class DatabaseProvider(
         log.atInfo().log("Connected to local SQLite database at: ${dbFile.absolutePathString()}")
     }
 
-    private fun connectExternal() {
+    internal fun connectExternal() {
         val database = connectionConfig.database
         val external = database.external
 

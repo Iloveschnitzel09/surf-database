@@ -11,14 +11,14 @@ import kotlin.reflect.jvm.jvmErasure
 
 private val log = logger()
 
-inline fun <reified K : Annotation> getAnnotatedMethods(clazz: KClass<*>) =
+internal inline fun <reified K : Annotation> getAnnotatedMethods(clazz: KClass<*>) =
     clazz.declaredMemberFunctions.filter { it.findAnnotation<K>() != null }.filter {
         val params = it.valueParameters
 
         params.size == 1 && params[0].type.jvmErasure == RedisPacketEvent::class
     }
 
-fun callMethodWithRedisPacketEvent(
+internal fun callMethodWithRedisPacketEvent(
     clazz: Any,
     function: KFunction<*>,
     event: RedisPacketEvent

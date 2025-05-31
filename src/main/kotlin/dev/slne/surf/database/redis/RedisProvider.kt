@@ -22,12 +22,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
 import kotlinx.serialization.PolymorphicSerializer
 import kotlin.reflect.KFunction
+import kotlin.reflect.jvm.isAccessible
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import kotlin.time.toJavaDuration
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
-class RedisProvider(private val connectionConfig: ConnectionConfig) {
+class RedisProvider internal constructor(private val connectionConfig: ConnectionConfig) {
 
     private val log = logger()
 
@@ -143,7 +144,7 @@ class RedisProvider(private val connectionConfig: ConnectionConfig) {
             log.atWarning()
                 .log("PubSub connection is not initialized, call connect() first to unsubscribe.")
         }
-        
+
         pubSub?.unsubscribe(*channels)
     }
 
@@ -158,6 +159,7 @@ class RedisProvider(private val connectionConfig: ConnectionConfig) {
             return
         }
 
+        annotatedMethods.forEach { it.isAccessible = true }
         _listeners[listener] = annotatedMethods.toObjectSet()
     }
 

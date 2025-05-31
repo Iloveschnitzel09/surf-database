@@ -24,7 +24,7 @@ class ExternalDatabaseProviderTest {
     fun setup() {
         val externalConfig = ConnectionConfig(
             database = DatabaseConfig(
-                storageMethod = "external",
+                storageMethod = DatabaseStorageMethod.EXTERNAL,
                 external = ExternalDatabaseConfig(
                     connector = System.getenv("DB_CONNECTOR") ?: "mysql",
                     driver = System.getenv("DB_DRIVER") ?: "com.mysql.cj.jdbc.Driver",
@@ -46,7 +46,7 @@ class ExternalDatabaseProviderTest {
         provider.disconnect()
     }
 
-    private object Users : IntIdTable("local_users") {
+    private object Users : IntIdTable("external_users") {
         val name = varchar("name", 50)
     }
 

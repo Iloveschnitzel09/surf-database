@@ -5,7 +5,7 @@ import dev.slne.surf.database.redis.packet.RedisPacket
 import dev.slne.surf.surfapi.core.api.util.logger
 import io.lettuce.core.pubsub.RedisPubSubListener
 
-class RedisSubscriberHandler(private val redisProvider: RedisProvider) :
+internal class RedisSubscriberHandler(private val redisProvider: RedisProvider) :
     RedisPubSubListener<String, String> {
 
     private val log = logger()

@@ -24,7 +24,7 @@ class LocalDatabaseProviderTest {
     fun setup() {
         val config = ConnectionConfig(
             database = DatabaseConfig(
-                storageMethod = "local",
+                storageMethod = DatabaseStorageMethod.LOCAL,
                 local = LocalDatabaseConfig("test.db"),
                 hikari = DatabaseHikariConfig()
             )
@@ -39,7 +39,7 @@ class LocalDatabaseProviderTest {
         provider.disconnect()
     }
 
-    private object Users : IntIdTable() {
+    private object Users : IntIdTable("local_users") {
         val name = varchar("name", 50)
     }
 
