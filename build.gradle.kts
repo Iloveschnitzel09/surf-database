@@ -30,6 +30,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.10.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    testImplementation("dev.slne.surf:surf-api-standalone:1.21.4+")
 }
 
 tasks.test {

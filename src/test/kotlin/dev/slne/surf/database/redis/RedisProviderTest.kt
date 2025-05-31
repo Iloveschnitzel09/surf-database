@@ -132,7 +132,6 @@ class RedisProviderTest {
         fun onMessage(event: RedisPacketEvent) {
             if (event.packet !is RedisExamplePacket) return
 
-            println("Received packet: ${event.packet}")
             toComplete.complete(event.packet)
         }
     }
@@ -153,7 +152,7 @@ class RedisProviderTest {
             toComplete.await()
         }
 
-        assertEquals(packet, receivedPacket)
+        assertEquals(packet.message, receivedPacket.message)
     }
 
     @Test

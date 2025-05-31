@@ -6,7 +6,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 data class RedisConfig(
     val host: String = "localhost",
     val port: Int = 6379,
-    val password: String? = null,
+    val password: String? = "",
     val database: Int = 0,
 
     val connectTimeoutMillis: Int = 5000,

@@ -5,15 +5,12 @@ import dev.slne.surf.database.example.RedisExamplePacket
 import dev.slne.surf.database.redis.packet.RedisPacket
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.SerializersModuleBuilder
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
 object SurfSerializer {
 
     private val baseModule = SerializersModule {
-        register(this)
-
         polymorphic(RedisPacket::class) {
             subclass(RedisExamplePacket::class)
             subclass(RedisExample2Packet::class)
@@ -21,9 +18,6 @@ object SurfSerializer {
     }
 
     private val externalModules = mutableSetOf<SerializersModule>()
-
-    fun register(builder: SerializersModuleBuilder) = with(builder) {
-    }
 
     private var _json: Json = buildJson()
     val json get() = _json

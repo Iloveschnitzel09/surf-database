@@ -87,17 +87,4 @@ class ExternalDatabaseProviderTest {
             provider.connect()
         }
     }
-
-    @Test
-    @Order(5)
-    fun `should throw error on missing config`() {
-        val brokenConfig = ConnectionConfig(null)
-        val brokenProvider = DatabaseProvider(brokenConfig, tempDir)
-
-        val exception = assertThrows<IllegalStateException> {
-            brokenProvider.connect()
-        }
-
-        assertEquals("Database configuration is missing for connect", exception.message)
-    }
 }

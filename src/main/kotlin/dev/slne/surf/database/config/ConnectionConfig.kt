@@ -6,6 +6,6 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @ConfigSerializable
 data class ConnectionConfig(
-    val database: DatabaseConfig? = DatabaseConfig(),
-    val redis: RedisConfig? = RedisConfig()
+    val database: DatabaseConfig = DatabaseConfig(),
+    val redis: RedisConfig = RedisConfig()
 )

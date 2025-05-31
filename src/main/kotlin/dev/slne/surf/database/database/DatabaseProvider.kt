@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.slne.surf.database.config.ConnectionConfig
 import dev.slne.surf.database.config.database.DatabaseHikariConfig
+import dev.slne.surf.surfapi.core.api.util.logger
 import org.jetbrains.exposed.sql.Database
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -16,12 +17,13 @@ class DatabaseProvider(
     private val storageDirectory: Path
 ) {
 
+    private val log = logger()
+
     private var connection: Database? = null
     private var dataSource: HikariDataSource? = null
 
     fun connect() {
         val database = connectionConfig.database
-            ?: error("Database configuration is missing for connect")
 
         connection?.connector()?.isClosed?.let {
             if (!it) {
@@ -39,7 +41,8 @@ class DatabaseProvider(
             }
 
             else -> {
-                System.err.println("Unknown storage method '${database.storageMethod}'. Using local storage...")
+                log.atWarning()
+                    .log("Unknown storage method: '${database.storageMethod}'. Using local storage as fallback...")
                 connectLocal()
             }
         }
@@ -47,9 +50,8 @@ class DatabaseProvider(
 
     private fun connectLocal() {
         val database = connectionConfig.database
-            ?: error("Database configuration is missing for local storage")
-        val local = database.local ?: error("Local storage not configured")
-        val fileName = local.fileName ?: "storage.db"
+        val local = database.local
+        val fileName = local.fileName
 
         Class.forName("org.sqlite.JDBC")
         val dbFile = storageDirectory / fileName
@@ -70,13 +72,12 @@ class DatabaseProvider(
             "jdbc:sqlite:file:${dbFile.absolutePathString()}",
         )
 
-        println("Successfully connected to database with sqlite! File: ${dbFile.absolutePathString()}")
+        log.atInfo().log("Connected to local SQLite database at: ${dbFile.absolutePathString()}")
     }
 
     private fun connectExternal() {
         val database = connectionConfig.database
-            ?: error("Database configuration is missing for external storage")
-        val external = database.external ?: error("External storage not configured")
+        val external = database.external
 
         connectUsingHikari(
             external.connector,
@@ -89,7 +90,8 @@ class DatabaseProvider(
             database.hikari
         )
 
-        println("Successfully connected to database with ${external.connector} at ${external.hostname}:${external.port}/${external.database}")
+        log.atInfo()
+            .log("Connected to external database: ${external.connector} at ${external.hostname}:${external.port}/${external.database}")
     }
 
     private fun connectUsingHikari(
@@ -127,7 +129,8 @@ class DatabaseProvider(
 
     fun disconnect() {
         if (connection?.connector()?.isClosed == true) {
-            System.err.println("Database connection is not initialized or already closed.")
+            log.atWarning()
+                .log("Database connection is already closed or not initialized.")
             return
         }
 
