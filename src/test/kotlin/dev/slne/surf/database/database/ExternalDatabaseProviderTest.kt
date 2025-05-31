@@ -1,0 +1,103 @@
+package dev.slne.surf.database.database
+
+import dev.slne.surf.database.config.ConnectionConfig
+import dev.slne.surf.database.config.database.DatabaseConfig
+import dev.slne.surf.database.config.database.DatabaseHikariConfig
+import dev.slne.surf.database.config.database.ExternalDatabaseConfig
+import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.*
+import java.nio.file.Files
+import kotlin.test.assertEquals
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+class ExternalDatabaseProviderTest {
+
+    private lateinit var provider: DatabaseProvider
+    private val tempDir = Files.createTempDirectory("db-test")
+
+    @BeforeAll
+    fun setup() {
+        val externalConfig = ConnectionConfig(
+            database = DatabaseConfig(
+                storageMethod = "external",
+                external = ExternalDatabaseConfig(
+                    connector = System.getenv("DB_CONNECTOR") ?: "mysql",
+                    driver = System.getenv("DB_DRIVER") ?: "com.mysql.cj.jdbc.Driver",
+                    hostname = System.getenv("DB_HOST") ?: "localhost",
+                    port = System.getenv("DB_PORT")?.toIntOrNull() ?: 3306,
+                    database = System.getenv("DB_NAME") ?: "testdb",
+                    username = System.getenv("DB_USER") ?: "testuser",
+                    password = System.getenv("DB_PASS") ?: "testpass",
+                ),
+                hikari = DatabaseHikariConfig()
+            )
+        )
+        provider = DatabaseProvider(externalConfig, tempDir)
+        provider.connect()
+    }
+
+    @AfterAll
+    fun cleanup() {
+        provider.disconnect()
+    }
+
+    private object Users : IntIdTable("local_users") {
+        val name = varchar("name", 50)
+    }
+
+    @Test
+    @Order(1)
+    fun `should connect and create table`() {
+        transaction {
+            SchemaUtils.create(Users)
+        }
+    }
+
+    @Test
+    @Order(2)
+    fun `should create model`() {
+        assertDoesNotThrow {
+            transaction {
+                Users.insert {
+                    it[name] = "Alice"
+                }
+
+                val user = Users.selectAll().firstOrNull()
+                assertEquals("Alice", user?.get(Users.name))
+            }
+        }
+    }
+
+    @Test
+    @Order(3)
+    fun `should disconnect without exception`() {
+        provider.disconnect()
+        assertDoesNotThrow { provider.disconnect() }
+    }
+
+    @Test
+    @Order(4)
+    fun `should reconnect without error`() {
+        assertDoesNotThrow {
+            provider.connect()
+        }
+    }
+
+    @Test
+    @Order(5)
+    fun `should throw error on missing config`() {
+        val brokenConfig = ConnectionConfig(null)
+        val brokenProvider = DatabaseProvider(brokenConfig, tempDir)
+
+        val exception = assertThrows<IllegalStateException> {
+            brokenProvider.connect()
+        }
+
+        assertEquals("Database configuration is missing for connect", exception.message)
+    }
+}
