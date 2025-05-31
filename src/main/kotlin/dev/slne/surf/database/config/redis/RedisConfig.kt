@@ -10,6 +10,6 @@ data class RedisConfig(
     val database: Int = 0,
 
     val connectTimeoutMillis: Int = 5000,
-    val readTimeoutSeconds: Int = 5000,
+    val readTimeoutSeconds: Int = 5,
     val soKeepAlive: Boolean = true,
 )
