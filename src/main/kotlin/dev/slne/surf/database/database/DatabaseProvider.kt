@@ -1,12 +1,9 @@
-package dev.slne.surf.database
+package dev.slne.surf.database.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import dev.slne.surf.database.config.DatabaseConfig
-import dev.slne.surf.database.config.DatabaseHikariConfig
-import dev.slne.surf.surfapi.core.api.config.createSpongeYmlConfig
-import dev.slne.surf.surfapi.core.api.config.getSpongeConfig
-import dev.slne.surf.surfapi.core.api.config.surfConfigApi
+import dev.slne.surf.database.config.ConnectionConfig
+import dev.slne.surf.database.config.database.DatabaseHikariConfig
 import dev.slne.surf.surfapi.core.api.util.logger
 import org.jetbrains.exposed.sql.Database
 import java.nio.file.Path
@@ -15,26 +12,26 @@ import kotlin.io.path.createFile
 import kotlin.io.path.div
 import kotlin.io.path.notExists
 
-class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path) {
+class DatabaseProvider(
+    private val connectionConfig: ConnectionConfig,
+    private val storageDirectory: Path
+) {
 
     private val log = logger()
-    private lateinit var connection: Database
 
-    init {
-        surfConfigApi.createSpongeYmlConfig<DatabaseConfig>(
-            configDirectory,
-            "database-config.yml"
-        )
-    }
-
-    private val config get() = surfConfigApi.getSpongeConfig<DatabaseConfig>()
+    private var connection: Database? = null
+    private var dataSource: HikariDataSource? = null
 
     fun connect() {
-        if (::connection.isInitialized && !connection.connector().isClosed) {
-            disconnect()
+        val database = connectionConfig.database
+
+        connection?.connector()?.isClosed?.let {
+            if (!it) {
+                disconnect()
+            }
         }
 
-        when (config.storageMethod.lowercase()) {
+        when (database.storageMethod.lowercase()) {
             "local" -> {
                 connectLocal()
             }
@@ -44,18 +41,17 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
             }
 
             else -> {
-                log.atWarning().log(
-                    "Unknown storage method '%s'. Using local storage...",
-                    config.storageMethod
-                )
+                log.atWarning()
+                    .log("Unknown storage method: '${database.storageMethod}'. Using local storage as fallback...")
                 connectLocal()
             }
         }
     }
 
     private fun connectLocal() {
-        val internal = config.local
-        val fileName = internal.fileName ?: "storage.db"
+        val database = connectionConfig.database
+        val local = database.local
+        val fileName = local.fileName
 
         Class.forName("org.sqlite.JDBC")
         val dbFile = storageDirectory / fileName
@@ -72,16 +68,16 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
             "",
             "",
             "",
-            config.hikari,
+            database.hikari,
             "jdbc:sqlite:file:${dbFile.absolutePathString()}",
         )
 
-        log.atInfo().log("Successfully connected to database with sqlite!")
+        log.atInfo().log("Connected to local SQLite database at: ${dbFile.absolutePathString()}")
     }
 
     private fun connectExternal() {
-        val external = config.external
-        val hikari = config.hikari
+        val database = connectionConfig.database
+        val external = database.external
 
         connectUsingHikari(
             external.connector,
@@ -91,10 +87,11 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
             external.database,
             external.username,
             external.password,
-            hikari
+            database.hikari
         )
 
-        log.atInfo().log("Successfully connected to database with mysql!")
+        log.atInfo()
+            .log("Connected to external database: ${external.connector} at ${external.hostname}:${external.port}/${external.database}")
     }
 
     private fun connectUsingHikari(
@@ -126,14 +123,19 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
             validate()
         }
 
-        connection = Database.connect(HikariDataSource(hikariConfig))
+        dataSource = HikariDataSource(hikariConfig)
+        connection = Database.Companion.connect(dataSource!!)
     }
 
     fun disconnect() {
-        if (!::connection.isInitialized || connection.connector().isClosed) {
+        if (connection?.connector()?.isClosed == true) {
+            log.atWarning()
+                .log("Database connection is already closed or not initialized.")
             return
         }
 
-        connection.connector().close()
+        dataSource?.takeIf { !it.isClosed }?.close()
+        connection = null
+        dataSource = null
     }
 }

@@ -1,9 +1,9 @@
-package dev.slne.surf.database.config
+package dev.slne.surf.database.config.database
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @ConfigSerializable
-data class DatabaseConfig (
+data class DatabaseConfig(
     val storageMethod: String = "local",
 
     val local: LocalDatabaseConfig = LocalDatabaseConfig(),
