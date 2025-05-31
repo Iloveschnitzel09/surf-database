@@ -48,7 +48,6 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
                     "Unknown storage method '%s'. Using local storage...",
                     config.storageMethod
                 )
-
                 connectLocal()
             }
         }
@@ -56,7 +55,6 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
 
     private fun connectLocal() {
         val internal = config.local
-            ?: error("Local database config is null. Cannot connect to internal database.")
         val fileName = internal.fileName ?: "storage.db"
 
         Class.forName("org.sqlite.JDBC")
@@ -83,8 +81,6 @@ class DatabaseProvider(configDirectory: Path, private val storageDirectory: Path
 
     private fun connectExternal() {
         val external = config.external
-            ?: error("External database config is null. Cannot connect to external database.")
-
         val hikari = config.hikari
 
         connectUsingHikari(
