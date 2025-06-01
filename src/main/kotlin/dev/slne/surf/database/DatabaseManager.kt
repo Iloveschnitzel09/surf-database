@@ -13,8 +13,13 @@ class DatabaseManager(configDirectory: Path, storageDirectory: Path) {
     internal val connectionConfig
         get() = surfConfigApi.getSpongeConfig<ConnectionConfig>()
 
-    val databaseProvider = DatabaseProvider(connectionConfig, storageDirectory)
-    val redisProvider = RedisProvider(connectionConfig)
+    val databaseProvider by lazy {
+        DatabaseProvider(connectionConfig, storageDirectory)
+    }
+    
+    val redisProvider by lazy {
+        RedisProvider(connectionConfig)
+    }
 
     init {
         surfConfigApi.createSpongeYmlConfig<ConnectionConfig>(
