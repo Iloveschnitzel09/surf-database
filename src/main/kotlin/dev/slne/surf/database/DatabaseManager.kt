@@ -8,7 +8,7 @@ import dev.slne.surf.surfapi.core.api.config.getSpongeConfig
 import dev.slne.surf.surfapi.core.api.config.surfConfigApi
 import java.nio.file.Path
 
-class DatabaseManager(private val configDirectory: Path, private val storageDirectory: Path) {
+class DatabaseManager(configDirectory: Path, storageDirectory: Path) {
 
     internal val connectionConfig by lazy {
         surfConfigApi.getSpongeConfig<ConnectionConfig>()
