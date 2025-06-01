@@ -10,7 +10,9 @@ import java.nio.file.Path
 
 class DatabaseManager(private val configDirectory: Path, private val storageDirectory: Path) {
 
-    internal val connectionConfig = surfConfigApi.getSpongeConfig<ConnectionConfig>()
+    internal val connectionConfig by lazy {
+        surfConfigApi.getSpongeConfig<ConnectionConfig>()
+    }
 
     val databaseProvider = DatabaseProvider(connectionConfig, storageDirectory)
     val redisProvider = RedisProvider(connectionConfig)
