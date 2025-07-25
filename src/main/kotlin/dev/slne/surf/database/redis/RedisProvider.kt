@@ -39,8 +39,7 @@ class RedisProvider internal constructor(private val connectionConfig: Connectio
         private set
     var pubSub: RedisPubSubAsyncCommands<String, String>? = null
         private set
-
-
+    
     private var _scope =
         CoroutineScope(Dispatchers.IO + SupervisorJob() + CoroutineName("redis-connection-scope-{identifier}"))
     val scope get() = _scope
