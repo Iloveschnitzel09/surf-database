@@ -1,10 +1,10 @@
 package dev.slne.surf.database.database.columns
 
 
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.Function
-import org.jetbrains.exposed.sql.vendors.*
-import java.sql.ResultSet
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.Function
+import org.jetbrains.exposed.v1.core.statements.api.RowApi
+import org.jetbrains.exposed.v1.core.vendors.*
 import java.sql.Timestamp
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -102,7 +102,7 @@ class ZonedDateTimeColumnType : ColumnType<ZonedDateTime>(), IDateColumnType {
         }
     }
 
-    override fun readObject(rs: ResultSet, index: Int): Any? {
+    override fun readObject(rs: RowApi, index: Int): Any? {
         return if (currentDialect is OracleDialect) {
             rs.getObject(index, Timestamp::class.java)
         } else {
