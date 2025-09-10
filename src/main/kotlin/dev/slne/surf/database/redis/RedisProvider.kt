@@ -7,17 +7,12 @@ import dev.slne.surf.database.redis.packet.RedisPacket
 import dev.slne.surf.database.serializer.SurfSerializer
 import dev.slne.surf.database.utils.callMethodWithRedisPacketEvent
 import dev.slne.surf.database.utils.getAnnotatedMethods
-import dev.slne.surf.surfapi.core.api.util.freeze
-import dev.slne.surf.surfapi.core.api.util.logger
-import dev.slne.surf.surfapi.core.api.util.mutableObject2ObjectMapOf
-import dev.slne.surf.surfapi.core.api.util.toObjectSet
 import io.lettuce.core.*
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.coroutines
 import io.lettuce.core.api.coroutines.RedisStringCoroutinesCommands
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import io.lettuce.core.pubsub.api.async.RedisPubSubAsyncCommands
-import it.unimi.dsi.fastutil.objects.ObjectSet
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
 import kotlinx.serialization.PolymorphicSerializer
@@ -29,8 +24,6 @@ import kotlin.time.toJavaDuration
 
 @OptIn(ExperimentalLettuceCoroutinesApi::class)
 class RedisProvider internal constructor(private val connectionConfig: ConnectionConfig) {
-
-    private val log = logger()
 
     private var client: RedisClient? = null
     private var connection: StatefulRedisConnection<String, String>? = null
@@ -44,8 +37,8 @@ class RedisProvider internal constructor(private val connectionConfig: Connectio
         CoroutineScope(Dispatchers.IO + SupervisorJob() + CoroutineName("redis-connection-scope-{identifier}"))
     val scope get() = _scope
 
-    private val _listeners = mutableObject2ObjectMapOf<Any, ObjectSet<KFunction<*>>>()
-    val listeners = _listeners.freeze()
+    private val _listeners = mutableMapOf<Any, MutableSet<KFunction<*>>>()
+    val listeners: Map<Any, Set<KFunction<*>>> get() = _listeners
 
     suspend fun connect() = withContext(scope.coroutineContext) {
         if (client != null || connection != null || pubSubConnection != null) {
@@ -131,8 +124,7 @@ class RedisProvider internal constructor(private val connectionConfig: Connectio
 
     suspend fun subscribe(vararg channels: String) = withContext(scope.coroutineContext) {
         if (pubSub == null) {
-            log.atWarning()
-                .log("PubSub connection is not initialized, call connect() first to subscribe.")
+            println("PubSub connection is not initialized, call connect() first to subscribe.")
         }
 
         pubSub?.subscribe(*channels)
@@ -140,8 +132,7 @@ class RedisProvider internal constructor(private val connectionConfig: Connectio
 
     suspend fun unsubscribe(vararg channels: String) = withContext(scope.coroutineContext) {
         if (pubSub == null) {
-            log.atWarning()
-                .log("PubSub connection is not initialized, call connect() first to unsubscribe.")
+            println("PubSub connection is not initialized, call connect() first to unsubscribe.")
         }
 
         pubSub?.unsubscribe(*channels)
@@ -159,7 +150,7 @@ class RedisProvider internal constructor(private val connectionConfig: Connectio
         }
 
         annotatedMethods.forEach { it.isAccessible = true }
-        _listeners[listener] = annotatedMethods.toObjectSet()
+        _listeners[listener] = annotatedMethods.toMutableSet()
     }
 
     fun removeListener(listener: Any) {

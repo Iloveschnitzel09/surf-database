@@ -1,9 +1,9 @@
 package dev.slne.surf.database.config.database
 
 import dev.slne.surf.database.database.DatabaseStorageMethod
-import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import kotlinx.serialization.Serializable
 
-@ConfigSerializable
+@Serializable
 internal data class DatabaseConfig(
     val storageMethod: DatabaseStorageMethod = DatabaseStorageMethod.LOCAL,
 

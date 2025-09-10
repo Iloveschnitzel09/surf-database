@@ -2,13 +2,10 @@ package dev.slne.surf.database.redis
 
 import dev.slne.surf.database.redis.listener.RedisPacketEvent
 import dev.slne.surf.database.redis.packet.RedisPacket
-import dev.slne.surf.surfapi.core.api.util.logger
 import io.lettuce.core.pubsub.RedisPubSubListener
 
 internal class RedisSubscriberHandler(private val redisProvider: RedisProvider) :
     RedisPubSubListener<String, String> {
-
-    private val log = logger()
 
     override fun message(channel: String, message: String) {
         val packet = RedisPacket.deserialize(message)
@@ -25,18 +22,18 @@ internal class RedisSubscriberHandler(private val redisProvider: RedisProvider) 
     }
 
     override fun subscribed(channel: String, count: Long) {
-        log.atFine().log("Subscribed to channel: $channel, total subscribed channels: $count")
+        println("Subscribed to channel: $channel, total subscribed channels: $count")
     }
 
     override fun psubscribed(pattern: String, count: Long) {
-        log.atFine().log("Subscribed to pattern: $pattern, total subscribed patterns: $count")
+        println("Subscribed to pattern: $pattern, total subscribed patterns: $count")
     }
 
     override fun unsubscribed(channel: String, count: Long) {
-        log.atFine().log("Unsubscribed from channel: $channel, total subscribed channels: $count")
+        println("Unsubscribed from channel: $channel, total subscribed channels: $count")
     }
 
     override fun punsubscribed(pattern: String, count: Long) {
-        log.atFine().log("Unsubscribed from pattern: $pattern, total subscribed patterns: $count")
+        println("Unsubscribed from pattern: $pattern, total subscribed patterns: $count")
     }
 }

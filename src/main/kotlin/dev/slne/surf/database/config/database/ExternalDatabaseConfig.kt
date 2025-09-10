@@ -1,8 +1,9 @@
 package dev.slne.surf.database.config.database
 
-import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import kotlinx.serialization.Serializable
 
-@ConfigSerializable
+
+@Serializable
 internal data class ExternalDatabaseConfig(
     val connector: String = "mariadb",
     val driver: String = "org.mariadb.jdbc.Driver",

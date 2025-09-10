@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.slne.surf.database.config.ConnectionConfig
 import dev.slne.surf.database.config.database.DatabaseHikariConfig
-import dev.slne.surf.surfapi.core.api.util.logger
 import org.jetbrains.exposed.v1.jdbc.Database
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -16,8 +15,6 @@ class DatabaseProvider internal constructor(
     private val connectionConfig: ConnectionConfig,
     private val storageDirectory: Path
 ) {
-    private val log = logger()
-
     private var connection: Database? = null
     private var dataSource: HikariDataSource? = null
 
@@ -57,7 +54,7 @@ class DatabaseProvider internal constructor(
             "jdbc:sqlite:file:${dbFile.absolutePathString()}",
         )
 
-        log.atInfo().log("Connected to local SQLite database at: ${dbFile.absolutePathString()}")
+        println("Connected to local SQLite database at: ${dbFile.absolutePathString()}")
     }
 
     internal fun connectExternal() {
@@ -75,8 +72,7 @@ class DatabaseProvider internal constructor(
             database.hikari
         )
 
-        log.atInfo()
-            .log("Connected to external database: ${external.connector} at ${external.hostname}:${external.port}/${external.database}")
+        println("Connected to external database: ${external.connector} at ${external.hostname}:${external.port}/${external.database}")
     }
 
     private fun connectUsingHikari(
@@ -114,8 +110,7 @@ class DatabaseProvider internal constructor(
 
     fun disconnect() {
         if (connection?.connector()?.isClosed == true) {
-            log.atWarning()
-                .log("Database connection is already closed or not initialized.")
+            println("Database connection is already closed or not initialized.")
             return
         }
 

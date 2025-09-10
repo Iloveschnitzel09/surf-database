@@ -1,8 +1,9 @@
 package dev.slne.surf.database.config.redis
 
-import org.spongepowered.configurate.objectmapping.ConfigSerializable
+import kotlinx.serialization.Serializable
 
-@ConfigSerializable
+
+@Serializable
 internal data class RedisConfig(
     val host: String = "localhost",
     val port: Int = 6379,
